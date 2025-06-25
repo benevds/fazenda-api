@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Tabela de Usuários
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // A senha será guardada criptografada
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  loginAttempts LoginAttempt[]
+  auditLogs     AuditLog[]
+}
+
+// Tabela para monitorar tentativas de login
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ip        String?
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [email], references: [email], onDelete: Cascade)
+}
+
+// Tabela para auditoria
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String // Ex: "USER_LOGIN_SUCCESS", "PASSWORD_RESET_REQUEST"
+  details   String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
+
+// Tabela para tokens de redefinição de senha
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique // O token aleatório
+  email     String
+  expiresAt DateTime // Quando o token expira
+
+  @@index([email])
+}
