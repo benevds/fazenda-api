@@ -10,14 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Tabela de Usuários
+// Tabela de Usuários ATUALIZADA para o novo 2FA
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String // A senha será guardada criptografada
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String    @id @default(cuid())
+  email            String    @unique
+  password         String
+  name             String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // --- CAMPOS ATUALIZADOS ---
+  twoFactorEnabled         Boolean   @default(false)
+  twoFactorCode            String?   // Guarda o código de 6 dígitos
+  twoFactorCodeExpiresAt   DateTime? // Guarda quando o código expira
 
   loginAttempts LoginAttempt[]
   auditLogs     AuditLog[]
